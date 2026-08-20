@@ -1,0 +1,356 @@
+openapi: 3.0.3
+
+info:
+  title: ms-auth API
+  version: 1.0.0
+  description: |
+    Servicio de **Identidad y Acceso**. Registro/autenticación de usuarios y emisión
+    de tokens JWT.
+
+    Los demás microservicios validan el JWT **localmente**, con el secreto/clave
+    compartida — no llaman a este servicio en cada request. `ms-auth` solo se invoca
+    en login, registro, y gestión del propio perfil.
+
+    Requisitos que cubre: RF01, RNF02.
+
+servers:
+  - url: http://localhost:18081/api/v1
+    description: Entorno local (Docker Compose)
+
+tags:
+  - name: Auth
+  - name: Usuarios
+
+paths:
+  /auth/registro:
+    post:
+      tags: [Auth]
+      summary: Registrar un nuevo usuario
+      operationId: registrarUsuario
+      x-requisito: RF01
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegistroRequest"
+      responses:
+        "201":
+          description: Usuario creado.
+          headers:
+            Location:
+              schema: { type: string, format: uri }
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Usuario"
+        "400": { $ref: "#/components/responses/SolicitudInvalida" }
+        "409":
+          description: El correo ya está registrado.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problema" }
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Autenticar credenciales y obtener un token JWT
+      operationId: iniciarSesion
+      x-requisito: RF01
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Autenticación exitosa.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403":
+          description: La cuenta está desactivada.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problema" }
+
+  /auth/cambiar-password:
+    post:
+      tags: [Auth]
+      summary: Cambiar la contraseña del usuario autenticado
+      description: |
+        RECOMENDACIÓN, no está explícito en RF01 pero es una operación mínima de
+        cualquier flujo de credenciales. Si el equipo prefiere resolverlo por fuera
+        del MVP (ej. solo "olvidé mi contraseña" por correo, fuera de alcance según
+        la sección 3 del documento), este endpoint se elimina.
+      operationId: cambiarPassword
+      x-estado: recomendacion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CambiarPasswordRequest"
+      responses:
+        "204":
+          description: Contraseña actualizada.
+        "400": { $ref: "#/components/responses/SolicitudInvalida" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "422":
+          description: La contraseña actual no coincide.
+          content:
+            application/problem+json:
+              schema: { $ref: "#/components/schemas/Problema" }
+
+  /usuarios:
+    get:
+      tags: [Usuarios]
+      summary: Listar usuarios con paginación y búsqueda
+      description: Retorna la lista paginada de usuarios. Permite buscar por nombre o correo electrónico.
+      operationId: listarUsuarios
+      x-requisito: RF01
+      parameters:
+        - $ref: "#/components/parameters/Buscar"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Size"
+      responses:
+        "200":
+          description: Página de usuarios.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaginaUsuarios" }
+        "400": { $ref: "#/components/responses/SolicitudInvalida" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+
+  /usuarios/me:
+    get:
+      tags: [Usuarios]
+      summary: Consultar el perfil del usuario autenticado
+      description: RECOMENDACIÓN — complemento natural de login para que el cliente sepa quién es sin decodificar el JWT.
+      operationId: obtenerPerfil
+      x-estado: recomendacion
+      responses:
+        "200":
+          description: Datos del usuario autenticado.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Usuario" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+    put:
+      tags: [Usuarios]
+      summary: Actualizar el perfil del usuario autenticado
+      description: |
+        RECOMENDACIÓN. Solo permite editar `nombre`; el `email` no se incluye aquí
+        porque es el identificador de login (cambiarlo implica revalidar la cuenta,
+        fuera de alcance del MVP).
+      operationId: actualizarPerfil
+      x-estado: recomendacion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ActualizarPerfilRequest" }
+      responses:
+        "200":
+          description: Perfil actualizado.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Usuario" }
+        "400": { $ref: "#/components/responses/SolicitudInvalida" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+
+  /usuarios/me/estado:
+    patch:
+      tags: [Usuarios]
+      summary: Desactivar (o reactivar) la propia cuenta
+      description: |
+        Decisión de equipo ya tomada: dar de baja un usuario es una **desactivación**,
+        no un borrado. Los registros históricos (fincas, labores, etc.) que ese
+        usuario haya creado permanecen intactos; el usuario `INACTIVO` simplemente
+        no puede volver a iniciar sesión.
+      operationId: cambiarEstadoCuenta
+      x-requisito: RF01
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/EstadoUsuarioRequest" }
+      responses:
+        "200":
+          description: Estado de la cuenta actualizado.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Usuario" }
+        "400": { $ref: "#/components/responses/SolicitudInvalida" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    Page:
+      name: page
+      in: query
+      description: Número de página (base 0).
+      schema: { type: integer, minimum: 0, default: 0 }
+    Size:
+      name: size
+      in: query
+      description: Elementos por página (máximo 20).
+      schema: { type: integer, minimum: 1, maximum: 20, default: 20 }
+    Buscar:
+      name: buscar
+      in: query
+      required: false
+      description: Texto libre para buscar por nombre o correo electrónico.
+      schema: { type: string, maxLength: 100 }
+
+  schemas:
+    Rol:
+      type: string
+      enum: [CAFICULTOR, ANALISTA_FINANCIERO]
+
+    EstadoUsuario:
+      type: string
+      enum: [ACTIVO, INACTIVO]
+
+    RegistroRequest:
+      type: object
+      required: [nombre, email, password, rol]
+      properties:
+        nombre: { type: string, maxLength: 120, example: María Ospina }
+        email: { type: string, format: email }
+        password: { type: string, format: password, minLength: 8 }
+        rol: { $ref: "#/components/schemas/Rol" }
+
+    Usuario:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        nombre: { type: string }
+        email: { type: string, format: email }
+        rol: { $ref: "#/components/schemas/Rol" }
+        estado: { $ref: "#/components/schemas/EstadoUsuario" }
+        fechaCreacion: { type: string, format: date-time }
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, format: password }
+
+    Token:
+      type: object
+      properties:
+        accessToken: { type: string }
+        tokenType: { type: string, example: Bearer }
+        expiresIn:
+          type: integer
+          description: Segundos hasta la expiración.
+
+    CambiarPasswordRequest:
+      type: object
+      required: [passwordActual, passwordNueva]
+      properties:
+        passwordActual: { type: string, format: password }
+        passwordNueva: { type: string, format: password, minLength: 8 }
+
+    ActualizarPerfilRequest:
+      type: object
+      required: [nombre]
+      properties:
+        nombre: { type: string, maxLength: 120 }
+
+    EstadoUsuarioRequest:
+      type: object
+      required: [estado]
+      properties:
+        estado: { $ref: "#/components/schemas/EstadoUsuario" }
+
+    Pagina:
+      type: object
+      description: Metadatos de paginación comunes a todos los listados.
+      properties:
+        page:
+          type: integer
+          description: Número de página actual (base 0).
+          example: 0
+        size:
+          type: integer
+          description: Cantidad de elementos por página.
+          example: 20
+        totalElements:
+          type: integer
+          format: int64
+          description: Total de elementos en todas las páginas.
+          example: 47
+        totalPages:
+          type: integer
+          description: Total de páginas disponibles.
+          example: 3
+        first:
+          type: boolean
+          description: true si es la primera página.
+          example: true
+        last:
+          type: boolean
+          description: true si es la última página.
+          example: false
+        hasPrevious:
+          type: boolean
+          description: true si existe una página anterior.
+          example: false
+        hasNext:
+          type: boolean
+          description: true si existe una página siguiente.
+          example: true
+
+    PaginaUsuarios:
+      allOf:
+        - $ref: "#/components/schemas/Pagina"
+        - type: object
+          properties:
+            content:
+              type: array
+              items: { $ref: "#/components/schemas/Usuario" }
+
+    Problema:
+      type: object
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string }
+        errores:
+          type: array
+          items:
+            type: object
+            properties:
+              campo: { type: string }
+              mensaje: { type: string }
+
+  responses:
+    SolicitudInvalida:
+      description: Datos de entrada inválidos.
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problema" }
+    NoAutenticado:
+      description: Credenciales o token inválidos.
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problema" }
+
+security:
+  - bearerAuth: []

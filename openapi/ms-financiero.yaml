@@ -1,0 +1,254 @@
+openapi: 3.0.3
+
+info:
+  title: ms-financiero API
+  version: 1.0.0
+  description: |
+    Servicio de **Analítica Financiera**. Consolida el balance (costos vs. ingresos)
+    por lote y por finca, consumiendo de forma asíncrona los eventos `CostoRegistrado`
+    (ms-agronomico) e `IngresoRegistrado` (ms-cosecha).
+
+    Es un servicio de **solo lectura** hacia el exterior: no tiene ningún endpoint de
+    creación/edición propio, porque no es dueño de ningún dato — todo lo que expone
+    es una proyección derivada de eventos. Por eso no tiene DELETE: no hay nada que
+    el cliente haya creado aquí para anular. Si `ms-agronomico`/`ms-cosecha` llegan a
+    publicar eventos compensatorios (`CostoAnulado`/`IngresoAnulado`), este servicio
+    los consume igual que los de registro, sin necesidad de un endpoint adicional.
+
+    Requisitos que cubre: RF07, RNF01, RNF02, RNF03.
+
+servers:
+  - url: http://localhost:18084/api/v1
+    description: Entorno local (Docker Compose)
+
+tags:
+  - name: Balance
+
+security:
+  - bearerAuth: []
+
+paths:
+  /balance/lotes/{loteId}:
+    get:
+      tags: [Balance]
+      summary: Consultar el balance financiero consolidado de un lote
+      operationId: obtenerBalanceLote
+      x-requisito: RF07
+      parameters:
+        - $ref: "#/components/parameters/LoteId"
+      responses:
+        "200":
+          description: Balance del lote.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Balance" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+
+  /balance/lotes:
+    get:
+      tags: [Balance]
+      summary: Consultar el balance de varios lotes por id (batch)
+      description: |
+        RECOMENDACIÓN técnica para el Gateway GraphQL, mismo criterio que
+        `GET /lotes?ids=` en ms-agronomico: evita resolver el balance lote por lote
+        (problema N+1) cuando el BFF necesita mostrar varios lotes con su balance en
+        una sola pantalla. Si el equipo no lo necesita, se elimina.
+      operationId: consultarBalancesDeLotesPorIds
+      x-estado: recomendacion
+      parameters:
+        - name: ids
+          in: query
+          required: true
+          description: Lista de identificadores de lote separados por coma.
+          schema:
+            type: array
+            items: { type: string, format: uuid }
+          style: form
+          explode: false
+      responses:
+        "200":
+          description: Balances encontrados (los lotes sin movimientos no aparecen en la lista).
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Balance" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+
+  /balance/fincas/{fincaId}:
+    get:
+      tags: [Balance]
+      summary: Consultar el balance financiero consolidado de una finca
+      operationId: obtenerBalanceFinca
+      x-requisito: RF07
+      parameters:
+        - $ref: "#/components/parameters/FincaId"
+      responses:
+        "200":
+          description: Balance de la finca (agrega el balance de todos sus lotes).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Balance" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+
+  /balance/fincas/{fincaId}/lotes:
+    get:
+      tags: [Balance]
+      summary: Listar balances de los lotes de una finca con paginación
+      description: Retorna la lista paginada de balances de todos los lotes pertenecientes a la finca indicada.
+      operationId: listarBalancesPorFinca
+      x-requisito: RF07
+      parameters:
+        - $ref: "#/components/parameters/FincaId"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Size"
+      responses:
+        "200":
+          description: Página de balances de lotes de la finca.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaginaBalances" }
+        "400": { $ref: "#/components/responses/SolicitudInvalida" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+
+  /balance:
+    get:
+      tags: [Balance]
+      summary: Listar todos los balances del usuario autenticado con paginación
+      description: Retorna la lista paginada de balances de todos los lotes del usuario autenticado.
+      operationId: listarBalances
+      x-requisito: RF07
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Size"
+      responses:
+        "200":
+          description: Página de balances.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaginaBalances" }
+        "400": { $ref: "#/components/responses/SolicitudInvalida" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    FincaId:
+      name: fincaId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    LoteId:
+      name: loteId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    Page:
+      name: page
+      in: query
+      description: Número de página (base 0).
+      schema: { type: integer, minimum: 0, default: 0 }
+    Size:
+      name: size
+      in: query
+      description: Elementos por página (máximo 20).
+      schema: { type: integer, minimum: 1, maximum: 20, default: 20 }
+
+  schemas:
+    Balance:
+      type: object
+      properties:
+        loteId: { type: string, format: uuid }
+        fincaId: { type: string, format: uuid }
+        costoTotal: { type: number, format: double }
+        ingresoTotal: { type: number, format: double }
+        balance:
+          type: number
+          format: double
+          description: ingresoTotal - costoTotal
+        actualizadoEn:
+          type: string
+          format: date-time
+          description: Fecha del último evento (costo o ingreso) consumido para este balance.
+
+    Pagina:
+      type: object
+      description: Metadatos de paginación comunes a todos los listados.
+      properties:
+        page:
+          type: integer
+          description: Número de página actual (base 0).
+          example: 0
+        size:
+          type: integer
+          description: Cantidad de elementos por página.
+          example: 20
+        totalElements:
+          type: integer
+          format: int64
+          description: Total de elementos en todas las páginas.
+          example: 47
+        totalPages:
+          type: integer
+          description: Total de páginas disponibles.
+          example: 3
+        first:
+          type: boolean
+          description: true si es la primera página.
+          example: true
+        last:
+          type: boolean
+          description: true si es la última página.
+          example: false
+        hasPrevious:
+          type: boolean
+          description: true si existe una página anterior.
+          example: false
+        hasNext:
+          type: boolean
+          description: true si existe una página siguiente.
+          example: true
+
+    PaginaBalances:
+      allOf:
+        - $ref: "#/components/schemas/Pagina"
+        - type: object
+          properties:
+            content:
+              type: array
+              items: { $ref: "#/components/schemas/Balance" }
+
+    Problema:
+      type: object
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string }
+
+  responses:
+    SolicitudInvalida:
+      description: Datos de entrada inválidos.
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problema" }
+    NoAutenticado:
+      description: Token JWT ausente o inválido.
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problema" }
+    NoEncontrado:
+      description: >
+        El lote/finca no existe o aún no tiene movimientos registrados
+        (no hay diferencia entre ambos casos desde este servicio).
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problema" }

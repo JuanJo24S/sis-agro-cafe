@@ -1,0 +1,285 @@
+# Gateway GraphQL (BFF): unifica en un solo endpoint las consultas que hoy viven
+# repartidas entre ms-auth, ms-agronomico, ms-cosecha y ms-financiero (RNF03).
+#
+# Las fechas viajan como String en formato ISO-8601 ("2026-03-14" o
+# "2026-03-14T10:15:30Z"), tal como las expone la API REST de cada microservicio.
+
+enum Rol {
+  CAFICULTOR
+  ANALISTA_FINANCIERO
+}
+enum EstadoUsuario {
+  ACTIVO
+  INACTIVO
+}
+enum TipoLabor {
+  LIMPIA
+  FUMIGACION
+  DESHIERBE
+  PODA
+  OTRA
+}
+enum EstadoFertilizacion {
+  PROGRAMADA
+  EJECUTADA
+  CANCELADA
+}
+enum EstadoGrano {
+  CEREZA
+  MOJADO
+  SECO_AGUA
+  SECO_TRILLA
+  ALMACENADO
+}
+
+type Usuario {
+  id: ID!
+  nombre: String!
+  email: String!
+  rol: Rol!
+  estado: EstadoUsuario!
+  fechaCreacion: String
+}
+
+type Token {
+  accessToken: String!
+  tokenType: String!
+  expiresIn: Int!
+}
+
+type Finca {
+  id: ID!
+  propietarioId: ID!
+  nombre: String!
+  municipio: String!
+  departamento: String
+  areaTotalHectareas: Float
+  fechaCreacion: String
+  "Lotes de la finca (resuelto contra ms-agronomico)."
+  lotes(page: Int = 0, size: Int = 50): [Lote!]!
+  "Balance consolidado de la finca (resuelto contra ms-financiero). Null si aun no hay movimientos."
+  balance: Balance
+}
+
+type Lote {
+  id: ID!
+  fincaId: ID!
+  nombre: String!
+  variedad: String!
+  fechaSiembra: String!
+  areaHectareas: Float!
+  densidadSiembra: Int
+  alturaMsnm: Int
+  phSuelo: Float
+  tipoSuelo: String
+  temperaturaPromedio: Float
+  "Bitacora de labores del lote."
+  labores(page: Int = 0, size: Int = 50): [Labor!]!
+  "Historial y plan de abonadas del lote."
+  fertilizaciones(
+    estado: EstadoFertilizacion
+    page: Int = 0
+    size: Int = 50
+  ): [Fertilizacion!]!
+  "Jornadas de recoleccion del lote."
+  recolecciones(page: Int = 0, size: Int = 50): [Recoleccion!]!
+  "Ventas originadas en el lote."
+  ventas(page: Int = 0, size: Int = 50): [Venta!]!
+  "Balance del lote. Null si aun no hay movimientos consolidados."
+  balance: Balance
+}
+
+type Labor {
+  id: ID!
+  loteId: ID!
+  tipo: TipoLabor!
+  descripcion: String
+  fechaEjecucion: String!
+  jornales: Float
+  costoManoObra: Float!
+  costoInsumos: Float
+  costoTotal: Float!
+  fechaRegistro: String
+}
+
+type Fertilizacion {
+  id: ID!
+  loteId: ID!
+  estado: EstadoFertilizacion!
+  fecha: String!
+  composicion: String!
+  dosisKgPorArbol: Float
+  cantidadTotalKg: Float
+  costoInsumos: Float
+  costoManoObra: Float
+  costoTotal: Float!
+  observaciones: String
+  fechaRegistro: String
+}
+
+type Recoleccion {
+  id: ID!
+  loteId: ID!
+  fecha: String!
+  pesoCascaraKg: Float!
+  valorPorKgArroba: Float!
+  recolector: String
+  estadoGrano: EstadoGrano!
+  costoManoObra: Float!
+  fechaRegistro: String
+}
+
+type Venta {
+  id: ID!
+  loteId: ID!
+  fecha: String!
+  cantidad: Float!
+  precioPorArroba: Float!
+  comprador: String!
+  montoTotal: Float!
+  fechaRegistro: String
+}
+
+type Balance {
+  loteId: ID
+  fincaId: ID
+  costoTotal: Float!
+  ingresoTotal: Float!
+  balance: Float!
+  actualizadoEn: String
+}
+
+type PaginaFincas {
+  content: [Finca!]!
+  page: Int!
+  size: Int!
+  totalElements: Int!
+  totalPages: Int!
+}
+
+type PaginaVentas {
+  content: [Venta!]!
+  page: Int!
+  size: Int!
+  totalElements: Int!
+  totalPages: Int!
+}
+
+input RegistroInput {
+  nombre: String!
+  email: String!
+  password: String!
+  rol: Rol!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input FincaInput {
+  nombre: String!
+  municipio: String!
+  departamento: String
+  areaTotalHectareas: Float
+}
+
+input LoteInput {
+  nombre: String!
+  variedad: String!
+  fechaSiembra: String!
+  areaHectareas: Float!
+  densidadSiembra: Int
+  alturaMsnm: Int
+  phSuelo: Float
+  tipoSuelo: String
+  temperaturaPromedio: Float
+}
+
+input LaborInput {
+  tipo: TipoLabor!
+  descripcion: String
+  fechaEjecucion: String!
+  jornales: Float
+  costoManoObra: Float!
+  costoInsumos: Float
+}
+
+input FertilizacionInput {
+  estado: EstadoFertilizacion!
+  fecha: String!
+  composicion: String!
+  dosisKgPorArbol: Float!
+  cantidadTotalKg: Float
+  costoInsumos: Float
+  costoManoObra: Float
+}
+
+input EjecucionFertilizacionInput {
+  fechaEjecucion: String!
+  costoInsumos: Float
+  costoManoObra: Float
+  observaciones: String
+}
+
+input RecoleccionInput {
+  fecha: String!
+  pesoCascaraKg: Float!
+  valorPorKgArroba: Float!
+  recolector: String
+  estadoGrano: EstadoGrano
+}
+
+input VentaInput {
+  loteId: ID!
+  fecha: String!
+  cantidad: Float!
+  precioPorArroba: Float!
+  comprador: String!
+}
+
+type Query {
+  "Perfil del usuario autenticado (ms-auth)."
+  me: Usuario!
+  fincas(page: Int = 0, size: Int = 20): PaginaFincas!
+  finca(id: ID!): Finca!
+  lote(id: ID!): Lote!
+  "Consulta batch de lotes; evita el problema N+1 del BFF."
+  lotes(ids: [ID!]!): [Lote!]!
+  ventas(loteId: ID, page: Int = 0, size: Int = 20): PaginaVentas!
+  balanceLote(loteId: ID!): Balance
+  balanceFinca(fincaId: ID!): Balance
+}
+
+type Mutation {
+  registro(input: RegistroInput!): Usuario!
+  login(input: LoginInput!): Token!
+  crearFinca(input: FincaInput!): Finca!
+  crearLote(fincaId: ID!, input: LoteInput!): Lote!
+  registrarLabor(
+    loteId: ID!
+    input: LaborInput!
+    idempotencyKey: String
+  ): Labor!
+  anularLabor(laborId: ID!): Boolean!
+  registrarFertilizacion(
+    loteId: ID!
+    input: FertilizacionInput!
+    idempotencyKey: String
+  ): Fertilizacion!
+  ejecutarFertilizacion(
+    fertilizacionId: ID!
+    input: EjecucionFertilizacionInput!
+  ): Fertilizacion!
+  registrarRecoleccion(
+    loteId: ID!
+    input: RecoleccionInput!
+    idempotencyKey: String
+  ): Recoleccion!
+  actualizarEstadoGrano(
+    recoleccionId: ID!
+    estadoGrano: EstadoGrano!
+  ): Recoleccion!
+  registrarVenta(input: VentaInput!, idempotencyKey: String): Venta!
+  anularVenta(ventaId: ID!): Boolean!
+}
