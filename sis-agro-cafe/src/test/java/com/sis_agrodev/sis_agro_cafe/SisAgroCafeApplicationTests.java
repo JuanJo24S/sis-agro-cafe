@@ -1,10 +1,10 @@
-package com.sis_agrodev.agro_cafe;
+package com.sis_agrodev.sis_agro_cafe;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AgroCafeApplicationTests {
+class SisAgroCafeApplicationTests {
 
 	@Test
 	void contextLoads() {
