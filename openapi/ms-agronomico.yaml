@@ -1,0 +1,685 @@
+openapi: 3.0.3
+
+info:
+  title: ms-agronomico API
+  version: 1.0.0
+  description: |
+    Servicio de **Gestión Agronómica**. Es dueño de todo lo que ocurre en el cultivo
+    ANTES de la cosecha: fincas, lotes (parcelas), labores culturales y fertilizaciones.
+
+    Publica en Kafka el evento `CostoRegistrado` cada vez que se registra una labor
+    ejecutada o una fertilización ejecutada.
+
+    Requisitos que cubre: RF02, RF03, RF04, RNF01, RNF02, RNF03.
+
+    Nota de vocabulario: en este servicio **"lote" = parcela de cultivo**. El lote de
+    café cosechado se llama **"partida"** y vive en ms-cosecha.
+
+servers:
+  - url: http://localhost:8082/api/v1
+    description: Entorno local (Docker Compose)
+
+tags:
+  - name: Fincas
+  - name: Lotes
+  - name: Labores
+  - name: Fertilizaciones
+
+paths:
+
+  /fincas:
+    post:
+      tags: [Fincas]
+      summary: Registrar una finca
+      description: La finca queda asociada al usuario autenticado (propietario del JWT).
+      operationId: crearFinca
+      x-requisito: RF02
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FincaRequest'
+      responses:
+        '201':
+          description: Finca creada.
+          headers:
+            Location:
+              schema: { type: string, format: uri }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Finca'
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+    get:
+      tags: [Fincas]
+      summary: Listar las fincas del usuario autenticado
+      operationId: listarFincas
+      x-requisito: RF02
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: Página de fincas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaFincas'
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+
+  /fincas/{fincaId}:
+    parameters:
+      - $ref: '#/components/parameters/FincaId'
+    get:
+      tags: [Fincas]
+      summary: Consultar una finca
+      operationId: obtenerFinca
+      x-requisito: RF02
+      responses:
+        '200':
+          description: Datos de la finca.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Finca' }
+        '401': { $ref: '#/components/responses/NoAutenticado' }
+        '403': { $ref: '#/components/responses/NoAutorizado' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+    put:
+      tags: [Fincas]
+      summary: Actualizar los datos de una finca
+      operationId: actualizarFinca
+      x-requisito: RF02
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FincaRequest' }
+      responses:
+        '200':
+          description: Finca actualizada.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Finca' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+
+  /fincas/{fincaId}/lotes:
+    parameters:
+      - $ref: '#/components/parameters/FincaId'
+    post:
+      tags: [Lotes]
+      summary: Registrar un lote (parcela) dentro de una finca
+      description: |
+        Caracterización técnica del lote: variedad, fecha de siembra, densidad,
+        altura sobre el nivel del mar, pH, tipo de suelo y temperatura promedio.
+      operationId: crearLote
+      x-requisito: RF02
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoteRequest' }
+      responses:
+        '201':
+          description: Lote creado.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Lote' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+    get:
+      tags: [Lotes]
+      summary: Listar los lotes de una finca
+      operationId: listarLotesDeFinca
+      x-requisito: RF02
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: Página de lotes.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaLotes' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+
+  /lotes:
+    get:
+      tags: [Lotes]
+      summary: Consultar varios lotes por id (batch)
+      description: |
+        RECOMENDACIÓN técnica para el Gateway GraphQL. Permite resolver en UNA sola
+        llamada los lotes referenciados por varias recolecciones o balances y evitar
+        el problema N+1 del BFF. Si el equipo no lo necesita, se elimina.
+      operationId: consultarLotesPorIds
+      x-estado: recomendacion
+      parameters:
+        - name: ids
+          in: query
+          required: true
+          description: Lista de identificadores de lote separados por coma.
+          schema:
+            type: array
+            items: { type: string, format: uuid }
+          style: form
+          explode: false
+      responses:
+        '200':
+          description: Lotes encontrados.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Lote' }
+
+  /lotes/{loteId}:
+    parameters:
+      - $ref: '#/components/parameters/LoteId'
+    get:
+      tags: [Lotes]
+      summary: Consultar un lote
+      operationId: obtenerLote
+      x-requisito: RF02
+      responses:
+        '200':
+          description: Datos del lote.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Lote' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+    put:
+      tags: [Lotes]
+      summary: Actualizar la caracterización de un lote
+      operationId: actualizarLote
+      x-requisito: RF02
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoteRequest' }
+      responses:
+        '200':
+          description: Lote actualizado.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Lote' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+
+  /lotes/{loteId}/labores:
+    parameters:
+      - $ref: '#/components/parameters/LoteId'
+    post:
+      tags: [Labores]
+      summary: Registrar una labor cultural ejecutada
+      description: |
+        Bitácora de limpias, fumigaciones y deshierbes con su costo de mano de obra e
+        insumos. Al persistirse, el servicio publica el evento Kafka `CostoRegistrado`.
+      operationId: registrarLabor
+      x-requisito: RF03
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LaborRequest' }
+      responses:
+        '201':
+          description: Labor registrada. El evento de costo se publica de forma asíncrona.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Labor' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '422': { $ref: '#/components/responses/ReglaDeNegocio' }
+    get:
+      tags: [Labores]
+      summary: Consultar el historial de labores de un lote
+      operationId: listarLabores
+      x-requisito: RF03
+      parameters:
+        - name: tipo
+          in: query
+          schema: { $ref: '#/components/schemas/TipoLabor' }
+        - name: desde
+          in: query
+          schema: { type: string, format: date }
+        - name: hasta
+          in: query
+          schema: { type: string, format: date }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: Página de labores.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaLabores' }
+
+  /labores/{laborId}:
+    parameters:
+      - name: laborId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Labores]
+      summary: Consultar una labor
+      operationId: obtenerLabor
+      x-requisito: RF03
+      responses:
+        '200':
+          description: Detalle de la labor.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Labor' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+    delete:
+      tags: [Labores]
+      summary: Anular una labor registrada por error
+      description: |
+        DECISIÓN PENDIENTE con el equipo. Si se permite borrar o corregir una labor,
+        el balance de ms-financiero queda desactualizado, así que la eliminación DEBE
+        publicar un evento compensatorio `CostoAnulado`. Si el equipo prefiere no
+        manejar eventos compensatorios en el MVP, este endpoint se elimina y los
+        registros se vuelven inmutables.
+      operationId: anularLabor
+      x-estado: decision-pendiente
+      responses:
+        '204':
+          description: Labor anulada; se publicó `CostoAnulado`.
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+
+  /lotes/{loteId}/fertilizaciones:
+    parameters:
+      - $ref: '#/components/parameters/LoteId'
+    post:
+      tags: [Fertilizaciones]
+      summary: Registrar o programar una fertilización (abonada)
+      description: |
+        Un único recurso cubre los dos casos del RF04 mediante el campo `estado`:
+        - `PROGRAMADA`: planeada a futuro. NO genera costo todavía.
+        - `EJECUTADA`: aplicada. Publica `CostoRegistrado` en Kafka.
+      operationId: registrarFertilizacion
+      x-requisito: RF04
+      parameters:
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FertilizacionRequest' }
+      responses:
+        '201':
+          description: Fertilización registrada o programada.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Fertilizacion' }
+        '400': { $ref: '#/components/responses/SolicitudInvalida' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+    get:
+      tags: [Fertilizaciones]
+      summary: Consultar el historial y el plan de fertilización de un lote
+      operationId: listarFertilizaciones
+      x-requisito: RF04
+      parameters:
+        - name: estado
+          in: query
+          schema: { $ref: '#/components/schemas/EstadoFertilizacion' }
+        - name: desde
+          in: query
+          schema: { type: string, format: date }
+        - name: hasta
+          in: query
+          schema: { type: string, format: date }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: Página de fertilizaciones.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginaFertilizaciones' }
+
+  /fertilizaciones/{fertilizacionId}:
+    parameters:
+      - name: fertilizacionId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Fertilizaciones]
+      summary: Consultar una fertilización
+      operationId: obtenerFertilizacion
+      x-requisito: RF04
+      responses:
+        '200':
+          description: Detalle de la fertilización.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Fertilizacion' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+    delete:
+      tags: [Fertilizaciones]
+      summary: Anular una fertilización registrada por error
+      description: |
+        Mismo criterio que `DELETE /labores/{id}`: si la fertilización ya estaba
+        `EJECUTADA` y publicó `CostoRegistrado`, anularla DEBE publicar también
+        `CostoAnulado` para no desactualizar el balance de ms-financiero. Si estaba
+        `PROGRAMADA` (nunca publicó costo), la anulación es un borrado simple.
+      operationId: anularFertilizacion
+      x-estado: decision-pendiente
+      responses:
+        '204':
+          description: Fertilización anulada; se publicó `CostoAnulado` si estaba ejecutada.
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+
+  /fertilizaciones/{fertilizacionId}/ejecucion:
+    post:
+      tags: [Fertilizaciones]
+      summary: Confirmar la ejecución de una fertilización programada
+      description: |
+        Cambia el estado de `PROGRAMADA` a `EJECUTADA`, registra la fecha real y el
+        costo definitivo, y solo entonces publica `CostoRegistrado`.
+        Se modela como sub-recurso y no como `PUT /fertilizaciones/{id}` porque es una
+        transición de negocio con efecto secundario (publicar evento), no una edición
+        libre de campos.
+      operationId: ejecutarFertilizacion
+      x-requisito: RF04
+      parameters:
+        - name: fertilizacionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/ClaveIdempotencia'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EjecucionFertilizacionRequest' }
+      responses:
+        '200':
+          description: Fertilización marcada como ejecutada.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Fertilizacion' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409':
+          description: La fertilización ya estaba ejecutada.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problema' }
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    FincaId:
+      name: fincaId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    LoteId:
+      name: loteId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    Page:
+      name: page
+      in: query
+      description: Número de página (base 0).
+      schema: { type: integer, minimum: 0, default: 0 }
+    Size:
+      name: size
+      in: query
+      description: Tamaño de página.
+      schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+    ClaveIdempotencia:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: |
+        RECOMENDACIÓN. Evita registrar dos veces el mismo costo si el cliente
+        reintenta la petición (y, por lo tanto, evita duplicar el balance financiero).
+      schema: { type: string, format: uuid }
+
+  schemas:
+
+    FincaRequest:
+      type: object
+      required: [nombre, municipio]
+      properties:
+        nombre: { type: string, maxLength: 120, example: La Esperanza }
+        municipio: { type: string, example: Rivera }
+        departamento: { type: string, example: Huila }
+        areaTotalHectareas: { type: number, format: double, minimum: 0, example: 4.5 }
+
+    Finca:
+      allOf:
+        - type: object
+          properties:
+            id: { type: string, format: uuid }
+            propietarioId:
+              type: string
+              format: uuid
+              description: Id de usuario tomado del JWT. El cliente no lo envía.
+        - $ref: '#/components/schemas/FincaRequest'
+        - type: object
+          properties:
+            fechaCreacion: { type: string, format: date-time }
+
+    LoteRequest:
+      type: object
+      required: [nombre, variedad, fechaSiembra, areaHectareas]
+      properties:
+        nombre: { type: string, example: Lote 3 - La Cuchilla }
+        variedad:
+          type: string
+          description: |
+            DECISIÓN PENDIENTE: ¿texto libre o catálogo cerrado (Castillo, Colombia,
+            Caturra, Borbón, Geisha)? Un catálogo mejora los reportes; el texto libre
+            es más simple para el MVP.
+          example: Castillo
+        fechaSiembra: { type: string, format: date }
+        areaHectareas: { type: number, format: double, minimum: 0, example: 1.2 }
+        densidadSiembra:
+          type: integer
+          description: Número de árboles por hectárea.
+          example: 5000
+        alturaMsnm: { type: integer, example: 1650 }
+        phSuelo: { type: number, format: double, minimum: 0, maximum: 14, example: 5.4 }
+        tipoSuelo: { type: string, example: Franco arcilloso }
+        temperaturaPromedio: { type: number, format: double, example: 21.5 }
+
+    Lote:
+      allOf:
+        - type: object
+          properties:
+            id: { type: string, format: uuid }
+            fincaId: { type: string, format: uuid }
+        - $ref: '#/components/schemas/LoteRequest'
+
+    TipoLabor:
+      type: string
+      enum: [LIMPIA, FUMIGACION, DESHIERBE, PODA, OTRA]
+
+    LaborRequest:
+      type: object
+      required: [tipo, fechaEjecucion, costoManoObra]
+      properties:
+        tipo: { $ref: '#/components/schemas/TipoLabor' }
+        descripcion: { type: string, maxLength: 300 }
+        fechaEjecucion: { type: string, format: date }
+        jornales:
+          type: number
+          format: double
+          description: Cantidad de jornales empleados.
+          example: 3
+        costoManoObra:
+          type: number
+          format: double
+          minimum: 0
+          description: Valor pagado en COP por la mano de obra.
+          example: 180000
+        costoInsumos:
+          type: number
+          format: double
+          minimum: 0
+          default: 0
+          example: 45000
+
+    Labor:
+      allOf:
+        - type: object
+          properties:
+            id: { type: string, format: uuid }
+            loteId: { type: string, format: uuid }
+        - $ref: '#/components/schemas/LaborRequest'
+        - type: object
+          properties:
+            costoTotal:
+              type: number
+              format: double
+              description: Campo calculado = costoManoObra + costoInsumos. Es el valor publicado en `CostoRegistrado`.
+            fechaRegistro: { type: string, format: date-time }
+
+    EstadoFertilizacion:
+      type: string
+      enum: [PROGRAMADA, EJECUTADA, CANCELADA]
+
+    FertilizacionRequest:
+      type: object
+      required: [estado, fecha, composicion, dosisKgPorArbol]
+      properties:
+        estado: { $ref: '#/components/schemas/EstadoFertilizacion' }
+        fecha:
+          type: string
+          format: date
+          description: Fecha de aplicación (si EJECUTADA) o fecha planeada (si PROGRAMADA).
+        composicion:
+          type: string
+          description: Fórmula o composición del fertilizante.
+          example: 25-4-24-3MgO
+        dosisKgPorArbol: { type: number, format: double, example: 0.12 }
+        cantidadTotalKg: { type: number, format: double, example: 600 }
+        costoInsumos: { type: number, format: double, minimum: 0, example: 1200000 }
+        costoManoObra: { type: number, format: double, minimum: 0, example: 240000 }
+
+    Fertilizacion:
+      allOf:
+        - type: object
+          properties:
+            id: { type: string, format: uuid }
+            loteId: { type: string, format: uuid }
+        - $ref: '#/components/schemas/FertilizacionRequest'
+        - type: object
+          properties:
+            costoTotal: { type: number, format: double }
+            fechaRegistro: { type: string, format: date-time }
+
+    EjecucionFertilizacionRequest:
+      type: object
+      required: [fechaEjecucion]
+      properties:
+        fechaEjecucion: { type: string, format: date }
+        costoInsumos: { type: number, format: double, minimum: 0 }
+        costoManoObra: { type: number, format: double, minimum: 0 }
+        observaciones: { type: string }
+
+    Pagina:
+      type: object
+      properties:
+        page: { type: integer }
+        size: { type: integer }
+        totalElements: { type: integer, format: int64 }
+        totalPages: { type: integer }
+
+    PaginaFincas:
+      allOf:
+        - $ref: '#/components/schemas/Pagina'
+        - type: object
+          properties:
+            content:
+              type: array
+              items: { $ref: '#/components/schemas/Finca' }
+
+    PaginaLotes:
+      allOf:
+        - $ref: '#/components/schemas/Pagina'
+        - type: object
+          properties:
+            content:
+              type: array
+              items: { $ref: '#/components/schemas/Lote' }
+
+    PaginaLabores:
+      allOf:
+        - $ref: '#/components/schemas/Pagina'
+        - type: object
+          properties:
+            content:
+              type: array
+              items: { $ref: '#/components/schemas/Labor' }
+
+    PaginaFertilizaciones:
+      allOf:
+        - $ref: '#/components/schemas/Pagina'
+        - type: object
+          properties:
+            content:
+              type: array
+              items: { $ref: '#/components/schemas/Fertilizacion' }
+
+    Problema:
+      type: object
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string }
+        errores:
+          type: array
+          items:
+            type: object
+            properties:
+              campo: { type: string }
+              mensaje: { type: string }
+
+  responses:
+    SolicitudInvalida:
+      description: Datos de entrada inválidos.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problema' }
+    NoAutenticado:
+      description: Token JWT ausente o inválido.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problema' }
+    NoAutorizado:
+      description: El recurso no pertenece al usuario autenticado.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problema' }
+    NoEncontrado:
+      description: El recurso solicitado no existe.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problema' }
+    ReglaDeNegocio:
+      description: La solicitud es sintácticamente válida pero viola una regla de negocio.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problema' }
+
+security:
+  - bearerAuth: []
