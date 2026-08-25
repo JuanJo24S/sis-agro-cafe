@@ -1,0 +1,390 @@
+{
+  "info": {
+    "name": "ms-agronomico",
+    "description": "Gestion de fincas, lotes, labores y fertilizaciones — puerto 8082",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:18082" },
+    { "key": "token", "value": "" },
+    { "key": "fincaId", "value": "00000000-0000-0000-0000-000000000001" },
+    { "key": "loteId", "value": "00000000-0000-0000-0000-000000000002" },
+    { "key": "laborId", "value": "00000000-0000-0000-0000-000000000003" },
+    {
+      "key": "fertilizacionId",
+      "value": "00000000-0000-0000-0000-000000000004"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Fincas",
+      "item": [
+        {
+          "name": "Crear finca",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.id) { pm.collectionVariables.set('fincaId', json.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v1/fincas",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "fincas"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Finca El Mirador\",\n  \"municipio\": \"Salento\",\n  \"departamento\": \"Quindio\",\n  \"areaTotalHectareas\": 5.5\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar fincas",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/fincas?page=0&size=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "fincas"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener finca",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/fincas/{{fincaId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "fincas", "{{fincaId}}"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar finca",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v1/fincas/{{fincaId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "fincas", "{{fincaId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Finca El Mirador Actualizada\",\n  \"municipio\": \"Salento\",\n  \"departamento\": \"Quindio\",\n  \"areaTotalHectareas\": 6.0\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lotes",
+      "item": [
+        {
+          "name": "Crear lote en finca",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.id) { pm.collectionVariables.set('loteId', json.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v1/fincas/{{fincaId}}/lotes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "fincas", "{{fincaId}}", "lotes"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Lote Norte\",\n  \"variedad\": \"Castillo\",\n  \"fechaSiembra\": \"2022-06-15\",\n  \"areaHectareas\": 1.2,\n  \"densidadSiembra\": 4000,\n  \"alturaMsnm\": 1750,\n  \"phSuelo\": 6.2,\n  \"tipoSuelo\": \"Franco arenoso\",\n  \"temperaturaPromedio\": 18.5\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar lotes de finca",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/fincas/{{fincaId}}/lotes?page=0&size=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "fincas", "{{fincaId}}", "lotes"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener lote",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/lotes/{{loteId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "lotes", "{{loteId}}"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar lote",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v1/lotes/{{loteId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "lotes", "{{loteId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Lote Norte Actualizado\",\n  \"variedad\": \"Castillo\",\n  \"fechaSiembra\": \"2022-06-15\",\n  \"areaHectareas\": 1.3,\n  \"densidadSiembra\": 4200,\n  \"alturaMsnm\": 1750,\n  \"phSuelo\": 6.4,\n  \"tipoSuelo\": \"Franco arenoso\",\n  \"temperaturaPromedio\": 18.5\n}"
+            }
+          }
+        },
+        {
+          "name": "Lotes por IDs (batch gateway)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/lotes?ids={{loteId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "lotes"],
+              "query": [{ "key": "ids", "value": "{{loteId}}" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Labores",
+      "item": [
+        {
+          "name": "Registrar labor en lote",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.id) { pm.collectionVariables.set('laborId', json.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$randomUUID}}",
+                "description": "Clave de idempotencia (opcional)"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/lotes/{{loteId}}/labores",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "lotes", "{{loteId}}", "labores"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"LIMPIA\",\n  \"descripcion\": \"Limpia general del lote\",\n  \"fechaEjecucion\": \"2026-09-01\",\n  \"jornales\": 3,\n  \"costoManoObra\": 90000,\n  \"costoInsumos\": 15000\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar labores de lote",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/lotes/{{loteId}}/labores?page=0&size=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "lotes", "{{loteId}}", "labores"],
+              "query": [
+                { "key": "tipo", "value": "LIMPIA", "disabled": true },
+                { "key": "desde", "value": "2026-01-01", "disabled": true },
+                { "key": "hasta", "value": "2026-12-31", "disabled": true },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener labor",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/labores/{{laborId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "labores", "{{laborId}}"]
+            }
+          }
+        },
+        {
+          "name": "Anular labor",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/api/v1/labores/{{laborId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "labores", "{{laborId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fertilizaciones",
+      "item": [
+        {
+          "name": "Registrar fertilizacion (EJECUTADA)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.id) { pm.collectionVariables.set('fertilizacionId', json.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$randomUUID}}",
+                "description": "Clave de idempotencia (opcional)"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/lotes/{{loteId}}/fertilizaciones",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "lotes", "{{loteId}}", "fertilizaciones"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"EJECUTADA\",\n  \"fecha\": \"2026-09-05\",\n  \"composicion\": \"NPK 15-15-15\",\n  \"dosisKgPorArbol\": 0.25,\n  \"cantidadTotalKg\": 1000,\n  \"costoInsumos\": 350000,\n  \"costoManoObra\": 80000\n}"
+            }
+          }
+        },
+        {
+          "name": "Programar fertilizacion",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Idempotency-Key", "value": "{{$randomUUID}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/lotes/{{loteId}}/fertilizaciones",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "lotes", "{{loteId}}", "fertilizaciones"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"PROGRAMADA\",\n  \"fecha\": \"2026-10-01\",\n  \"composicion\": \"Urea 46%\",\n  \"dosisKgPorArbol\": 0.15,\n  \"cantidadTotalKg\": 600,\n  \"costoInsumos\": 210000,\n  \"costoManoObra\": 60000\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar fertilizaciones de lote",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/lotes/{{loteId}}/fertilizaciones?page=0&size=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "lotes", "{{loteId}}", "fertilizaciones"],
+              "query": [
+                { "key": "estado", "value": "EJECUTADA", "disabled": true },
+                { "key": "desde", "value": "2026-01-01", "disabled": true },
+                { "key": "hasta", "value": "2026-12-31", "disabled": true },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener fertilizacion",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/fertilizaciones/{{fertilizacionId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "fertilizaciones", "{{fertilizacionId}}"]
+            }
+          }
+        },
+        {
+          "name": "Confirmar ejecucion de fertilizacion programada",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Idempotency-Key", "value": "{{$randomUUID}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/fertilizaciones/{{fertilizacionId}}/ejecucion",
+              "host": ["{{base_url}}"],
+              "path": [
+                "api",
+                "v1",
+                "fertilizaciones",
+                "{{fertilizacionId}}",
+                "ejecucion"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fechaEjecucion\": \"2026-10-02\",\n  \"costoInsumos\": 215000,\n  \"costoManoObra\": 62000,\n  \"observaciones\": \"Se aplico con equipo manual\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Anular fertilizacion",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/api/v1/fertilizaciones/{{fertilizacionId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "fertilizaciones", "{{fertilizacionId}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "info": {
+    "name": "ms-financiero",
+    "description": "Consulta de balance financiero por lote y finca — puerto 8084",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:18084" },
+    { "key": "token", "value": "" },
+    { "key": "loteId", "value": "00000000-0000-0000-0000-000000000002" },
+    { "key": "fincaId", "value": "00000000-0000-0000-0000-000000000001" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Balance",
+      "item": [
+        {
+          "name": "Balance por lote",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/balance/lotes/{{loteId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "balance", "lotes", "{{loteId}}"]
+            }
+          }
+        },
+        {
+          "name": "Balance de varios lotes (batch gateway)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/balance/lotes?ids={{loteId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "balance", "lotes"],
+              "query": [
+                {
+                  "key": "ids",
+                  "value": "{{loteId}}",
+                  "description": "Puede repetirse: ids=uuid1&ids=uuid2"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Balance por finca",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/balance/fincas/{{fincaId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "balance", "fincas", "{{fincaId}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

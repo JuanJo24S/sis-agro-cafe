@@ -1,0 +1,203 @@
+{
+  "info": {
+    "name": "ms-cosecha",
+    "description": "Gestion de recolecciones y ventas de cafe — puerto 18083",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:18083" },
+    { "key": "token", "value": "" },
+    { "key": "loteId", "value": "00000000-0000-0000-0000-000000000002" },
+    { "key": "recoleccionId", "value": "00000000-0000-0000-0000-000000000010" },
+    { "key": "ventaId", "value": "00000000-0000-0000-0000-000000000020" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Recolecciones",
+      "item": [
+        {
+          "name": "Registrar recoleccion en lote",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.id) { pm.collectionVariables.set('recoleccionId', json.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$randomUUID}}",
+                "description": "Clave de idempotencia (opcional)"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/lotes/{{loteId}}/recolecciones",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "lotes", "{{loteId}}", "recolecciones"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fecha\": \"2026-09-10\",\n  \"pesoCascaraKg\": 120.5,\n  \"valorPorKgArroba\": 1800,\n  \"recolector\": \"Carlos Perez\",\n  \"estadoGrano\": \"CEREZA\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar recolecciones de lote",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/lotes/{{loteId}}/recolecciones?page=0&size=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "lotes", "{{loteId}}", "recolecciones"],
+              "query": [
+                { "key": "estadoGrano", "value": "CEREZA", "disabled": true },
+                { "key": "desde", "value": "2026-01-01", "disabled": true },
+                { "key": "hasta", "value": "2026-12-31", "disabled": true },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener recoleccion",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/recolecciones/{{recoleccionId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "recolecciones", "{{recoleccionId}}"]
+            }
+          }
+        },
+        {
+          "name": "Avanzar estado del grano",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/api/v1/recolecciones/{{recoleccionId}}/estado",
+              "host": ["{{base_url}}"],
+              "path": [
+                "api",
+                "v1",
+                "recolecciones",
+                "{{recoleccionId}}",
+                "estado"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estadoGrano\": \"MOJADO\"\n}"
+            },
+            "description": "Estados validos en orden: CEREZA -> MOJADO -> SECO_AGUA -> SECO_TRILLA -> ALMACENADO"
+          }
+        },
+        {
+          "name": "Anular recoleccion",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/api/v1/recolecciones/{{recoleccionId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "recolecciones", "{{recoleccionId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ventas",
+      "item": [
+        {
+          "name": "Registrar venta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.id) { pm.collectionVariables.set('ventaId', json.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$randomUUID}}",
+                "description": "Clave de idempotencia (opcional)"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/ventas",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "ventas"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"loteId\": \"{{loteId}}\",\n  \"fecha\": \"2026-09-20\",\n  \"cantidad\": 50.0,\n  \"precioPorArroba\": 1850,\n  \"comprador\": \"Cooperativa Cafeteros del Quindio\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar ventas",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/ventas?page=0&size=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "ventas"],
+              "query": [
+                { "key": "loteId", "value": "{{loteId}}", "disabled": true },
+                { "key": "desde", "value": "2026-01-01", "disabled": true },
+                { "key": "hasta", "value": "2026-12-31", "disabled": true },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener venta",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/ventas/{{ventaId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "ventas", "{{ventaId}}"]
+            }
+          }
+        },
+        {
+          "name": "Anular venta",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/api/v1/ventas/{{ventaId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "ventas", "{{ventaId}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
