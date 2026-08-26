@@ -1,6 +1,34 @@
+# Sistema de Gestion Agronomica y Financiera para Caficultores
+# RNF04 (Portabilidad): todo el sistema se levanta con un solo comando.
+#
+#   cp .env.example .env && docker compose up --build
+#
+# Puertos publicados:
+#   8080  gateway-graphql   -> http://localhost:8080/graphiql
+#   8081  ms-auth           -> http://localhost:8081/swagger-ui.html
+#   8082  ms-agronomico     -> http://localhost:8082/swagger-ui.html
+#   8083  ms-cosecha        -> http://localhost:8083/swagger-ui.html
+#   8084  ms-financiero     -> http://localhost:8084/swagger-ui.html
+#   5432  postgres          29092  kafka (acceso desde el host)
+#
+# Si alguno de esos puertos ya esta ocupado en tu maquina, cambialo en .env
+# (PUERTO_GATEWAY, PUERTO_AUTH, ...) sin tocar este archivo.
+
 name: sis-agro-cafe
 
+x-jwt: &jwt
+  JWT_SECRET: ${JWT_SECRET}
+
+x-postgres: &credenciales-postgres
+  SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+  SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+
+x-kafka: &kafka
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
 services:
+
+  # ---------------------------- Infraestructura ----------------------------
 
   postgres:
     image: postgres:16-alpine
@@ -10,33 +38,138 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "${PUERTO_POSTGRES:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
-      retries: 10
-    networks:
-      - agrocafe-net
+      retries: 12
+    networks: [agrocafe-net]
 
-  app:
-    build:
-      context: .
-    container_name: agrocafe-app
+  kafka:
+    image: apache/kafka:4.1.2
+    container_name: agrocafe-kafka
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNO://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNO://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNO:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     ports:
-      - "8080:8080"
+      - "${PUERTO_KAFKA:-29092}:29092"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 15
+      start_period: 20s
+    networks: [agrocafe-net]
+
+  # ---------------------------- Microservicios -----------------------------
+
+  ms-auth:
+    build:
+      context: ./services/ms-auth
+    image: sis-agro-cafe/ms-auth:0.0.1
+    container_name: agrocafe-ms-auth
+    environment:
+      <<: [*credenciales-postgres, *jwt]
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/agrocafe_auth
+      JWT_EXPIRACION_SEGUNDOS: ${JWT_EXPIRACION_SEGUNDOS:-3600}
+    ports:
+      - "${PUERTO_AUTH:-8081}:8081"
     depends_on:
       postgres:
         condition: service_healthy
-    networks:
-      - agrocafe-net
+    networks: [agrocafe-net]
+
+  ms-agronomico:
+    build:
+      context: ./services/ms-agronomico
+    image: sis-agro-cafe/ms-agronomico:0.0.1
+    container_name: agrocafe-ms-agronomico
+    environment:
+      <<: [*credenciales-postgres, *jwt, *kafka]
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/agrocafe_agronomico
+    ports:
+      - "${PUERTO_AGRONOMICO:-8082}:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks: [agrocafe-net]
+
+  ms-cosecha:
+    build:
+      context: ./services/ms-cosecha
+    image: sis-agro-cafe/ms-cosecha:0.0.1
+    container_name: agrocafe-ms-cosecha
+    environment:
+      <<: [*credenciales-postgres, *jwt, *kafka]
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/agrocafe_cosecha
+      AGROCAFE_URL_AGRONOMICO: http://ms-agronomico:8082
+    ports:
+      - "${PUERTO_COSECHA:-8083}:8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      ms-agronomico:
+        condition: service_healthy
+    networks: [agrocafe-net]
+
+  ms-financiero:
+    build:
+      context: ./services/ms-financiero
+    image: sis-agro-cafe/ms-financiero:0.0.1
+    container_name: agrocafe-ms-financiero
+    environment:
+      <<: [*credenciales-postgres, *jwt, *kafka]
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/agrocafe_financiero
+    ports:
+      - "${PUERTO_FINANCIERO:-8084}:8084"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks: [agrocafe-net]
+
+  gateway-graphql:
+    build:
+      context: ./services/gateway-graphql
+    image: sis-agro-cafe/gateway-graphql:0.0.1
+    container_name: agrocafe-gateway
+    environment:
+      AGROCAFE_URL_AUTH: http://ms-auth:8081
+      AGROCAFE_URL_AGRONOMICO: http://ms-agronomico:8082
+      AGROCAFE_URL_COSECHA: http://ms-cosecha:8083
+      AGROCAFE_URL_FINANCIERO: http://ms-financiero:8084
+    ports:
+      - "${PUERTO_GATEWAY:-8080}:8080"
+    depends_on:
+      ms-auth:
+        condition: service_healthy
+      ms-agronomico:
+        condition: service_healthy
+      ms-cosecha:
+        condition: service_healthy
+      ms-financiero:
+        condition: service_healthy
+    networks: [agrocafe-net]
 
 networks:
   agrocafe-net:

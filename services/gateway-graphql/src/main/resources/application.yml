@@ -1,0 +1,40 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: gateway-graphql
+  graphql:
+    graphiql:
+      enabled: true
+      path: /graphiql
+    schema:
+      printer:
+        enabled: true
+    path: /graphql
+
+agrocafe:
+  clientes:
+    auth:
+      url: ${AGROCAFE_URL_AUTH:http://localhost:8081}
+    agronomico:
+      url: ${AGROCAFE_URL_AGRONOMICO:http://localhost:8082}
+    cosecha:
+      url: ${AGROCAFE_URL_COSECHA:http://localhost:8083}
+    financiero:
+      url: ${AGROCAFE_URL_FINANCIERO:http://localhost:8084}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+
+logging:
+  level:
+    com.sisagrodev: INFO

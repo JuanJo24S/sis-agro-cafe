@@ -1,0 +1,65 @@
+server:
+  port: ${SERVER_PORT:8084}
+
+spring:
+  application:
+    name: ms-financiero
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/agrocafe_financiero}
+    username: ${SPRING_DATASOURCE_USERNAME:agrocafe}
+    password: ${SPRING_DATASOURCE_PASSWORD:agrocafe}
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  mvc:
+    problemdetails:
+      enabled: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: ${AGROCAFE_GRUPO_CONSUMIDOR:ms-financiero}
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: com.sisagrodev.financiero.evento.MovimientoFinancieroEvent
+        spring.json.trusted.packages: com.sisagrodev.*
+
+agrocafe:
+  jwt:
+    secret: ${JWT_SECRET:cambiar-este-secreto-por-uno-largo-y-aleatorio}
+  kafka:
+    topico-costos: ${AGROCAFE_TOPICO_COSTOS:costo-registrado}
+    topico-ingresos: ${AGROCAFE_TOPICO_INGRESOS:ingreso-registrado}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+  api-docs:
+    path: /v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+
+logging:
+  level:
+    com.sisagrodev: INFO
