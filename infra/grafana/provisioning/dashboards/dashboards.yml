@@ -1,0 +1,10 @@
+# Carga los dashboards JSON de /var/lib/grafana/dashboards en la carpeta "AgroCafe".
+apiVersion: 1
+
+providers:
+  - name: agrocafe
+    folder: AgroCafe
+    type: file
+    disableDeletion: false
+    options:
+      path: /var/lib/grafana/dashboards

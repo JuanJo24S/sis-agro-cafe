@@ -1,0 +1,31 @@
+# Prometheus: recolecta las metricas de los microservicios (Spring Boot Actuator)
+# y de Kafka. Los nombres de host son los de la red de docker compose.
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+
+scrape_configs:
+  - job_name: microservicios
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["gateway-graphql:8080"]
+        labels: { servicio: gateway-graphql }
+      - targets: ["ms-auth:8081"]
+        labels: { servicio: ms-auth }
+      - targets: ["ms-agronomico:8082"]
+        labels: { servicio: ms-agronomico }
+      - targets: ["ms-cosecha:8083"]
+        labels: { servicio: ms-cosecha }
+      - targets: ["ms-financiero:8084"]
+        labels: { servicio: ms-financiero }
+
+  # Broker Kafka: kafka_topic_partition_current_offset, kafka_consumergroup_lag, ...
+  - job_name: kafka
+    static_configs:
+      - targets: ["kafka-exporter:9308"]
+        labels: { servicio: kafka }
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+        labels: { servicio: prometheus }
