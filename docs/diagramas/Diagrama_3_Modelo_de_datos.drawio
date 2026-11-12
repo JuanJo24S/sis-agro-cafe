@@ -1,0 +1,177 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Modelo-Datos-Aislado" id="agrocafe-model">
+    <mxGraphModel dx="1422" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- CONTEXTO AUTH -->
+        <mxCell id="ctx-auth" parent="1" style="swimlane;startSize=25;fillColor=#E1D5E7;strokeColor=#9673A6;fontStyle=1;fontSize=12;" value="BD: agrocafe_auth (ms-auth)" vertex="1">
+          <mxGeometry height="260" width="240" x="30" y="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl-usuarios" parent="ctx-auth" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=1;fontSize=10;fillColor=#FFFFFF;strokeColor=#9673A6;" value="usuarios" vertex="1">
+          <mxGeometry height="190" width="200" x="20" y="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl-usuarios-row-0" parent="tbl-usuarios" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;strokeColor=inherit;" vertex="1">
+          <mxGeometry height="20" width="200" as="geometry" x="0" y="25"/>
+        </mxCell>
+        <mxCell id="tbl-usuarios-c0" parent="tbl-usuarios-row-0" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;fontStyle=1;" value="PK  id : UUID" vertex="1">
+          <mxGeometry height="20" width="200" as="geometry" x="0" y="0"/>
+        </mxCell>
+        <mxCell id="tbl-usuarios-row-1" parent="tbl-usuarios" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;strokeColor=inherit;" vertex="1">
+          <mxGeometry height="20" width="200" as="geometry" x="0" y="45"/>
+        </mxCell>
+        <mxCell id="tbl-usuarios-c1" parent="tbl-usuarios-row-1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="nombre : VARCHAR(120)" vertex="1">
+          <mxGeometry height="20" width="200" as="geometry" x="0" y="0"/>
+        </mxCell>
+        <mxCell id="tbl-usuarios-row-2" parent="tbl-usuarios" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;strokeColor=inherit;" vertex="1">
+          <mxGeometry height="20" width="200" as="geometry" x="0" y="65"/>
+        </mxCell>
+        <mxCell id="tbl-usuarios-c2" parent="tbl-usuarios-row-2" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="email : VARCHAR(180) (UK)" vertex="1">
+          <mxGeometry height="20" width="200" as="geometry" x="0" y="0"/>
+        </mxCell>
+        <mxCell id="tbl-usuarios-row-3" parent="tbl-usuarios" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;strokeColor=inherit;" vertex="1">
+          <mxGeometry height="20" width="200" as="geometry" x="0" y="85"/>
+        </mxCell>
+        <mxCell id="tbl-usuarios-c3" parent="tbl-usuarios-row-3" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="password_hash : VARCHAR(120)" vertex="1">
+          <mxGeometry height="20" width="200" as="geometry" x="0" y="0"/>
+        </mxCell>
+        <mxCell id="tbl-usuarios-row-4" parent="tbl-usuarios" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;strokeColor=inherit;" vertex="1">
+          <mxGeometry height="20" width="200" as="geometry" x="0" y="105"/>
+        </mxCell>
+        <mxCell id="tbl-usuarios-c4" parent="tbl-usuarios-row-4" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="rol : VARCHAR(30)" vertex="1">
+          <mxGeometry height="20" width="200" as="geometry" x="0" y="0"/>
+        </mxCell>
+        <mxCell id="tbl-usuarios-row-5" parent="tbl-usuarios" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;strokeColor=inherit;" vertex="1">
+          <mxGeometry height="20" width="200" as="geometry" x="0" y="125"/>
+        </mxCell>
+        <mxCell id="tbl-usuarios-c5" parent="tbl-usuarios-row-5" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="estado : VARCHAR(20)" vertex="1">
+          <mxGeometry height="20" width="200" as="geometry" x="0" y="0"/>
+        </mxCell>
+        <mxCell id="tbl-usuarios-row-6" parent="tbl-usuarios" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;strokeColor=inherit;" vertex="1">
+          <mxGeometry height="20" width="200" as="geometry" x="0" y="145"/>
+        </mxCell>
+        <mxCell id="tbl-usuarios-c6" parent="tbl-usuarios-row-6" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="fecha_creacion : TIMESTAMPTZ" vertex="1">
+          <mxGeometry height="20" width="200" as="geometry" x="0" y="0"/>
+        </mxCell>
+
+        <!-- CONTEXTO AGRONOMICO -->
+        <mxCell id="ctx-agro" parent="1" style="swimlane;startSize=25;fillColor=#D5E8D4;strokeColor=#82B366;fontStyle=1;fontSize=12;" value="BD: agrocafe_agronomico (ms-agronomico)" vertex="1">
+          <mxGeometry height="680" width="560" x="300" y="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl-fincas" parent="ctx-agro" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=1;fontSize=10;fillColor=#FFFFFF;strokeColor=#82B366;" value="fincas" vertex="1">
+          <mxGeometry height="140" width="240" x="20" y="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="row-f-0" parent="tbl-fincas" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="25"/></mxCell>
+        <mxCell id="c-f-0" parent="row-f-0" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;fontStyle=1;" value="PK  id : UUID" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-f-1" parent="tbl-fincas" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="45"/></mxCell>
+        <mxCell id="c-f-1" parent="row-f-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="propietario_id : UUID (ref auth)" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-f-2" parent="tbl-fincas" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="65"/></mxCell>
+        <mxCell id="c-f-2" parent="row-f-2" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="nombre : VARCHAR(120)" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-f-3" parent="tbl-fincas" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="85"/></mxCell>
+        <mxCell id="c-f-3" parent="row-f-3" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="municipio, departamento : VARCHAR" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-f-4" parent="tbl-fincas" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="105"/></mxCell>
+        <mxCell id="c-f-4" parent="row-f-4" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="area_total_hectareas : NUMERIC" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+
+        <mxCell id="tbl-lotes" parent="ctx-agro" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=1;fontSize=10;fillColor=#FFFFFF;strokeColor=#82B366;" value="lotes" vertex="1">
+          <mxGeometry height="160" width="240" x="300" y="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="row-l-0" parent="tbl-lotes" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="25"/></mxCell>
+        <mxCell id="c-l-0" parent="row-l-0" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;fontStyle=1;" value="PK  id : UUID" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-l-1" parent="tbl-lotes" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="45"/></mxCell>
+        <mxCell id="c-l-1" parent="row-l-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="FK  finca_id : UUID -&gt; fincas.id" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-l-2" parent="tbl-lotes" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="65"/></mxCell>
+        <mxCell id="c-l-2" parent="row-l-2" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="nombre, variedad : VARCHAR" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-l-3" parent="tbl-lotes" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="85"/></mxCell>
+        <mxCell id="c-l-3" parent="row-l-3" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="fecha_siembra : DATE" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-l-4" parent="tbl-lotes" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="105"/></mxCell>
+        <mxCell id="c-l-4" parent="row-l-4" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="area_hectareas : NUMERIC" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-l-5" parent="tbl-lotes" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="125"/></mxCell>
+        <mxCell id="c-l-5" parent="row-l-5" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="densidad, altura, ph_suelo..." vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+
+        <mxCell id="tbl-labores" parent="ctx-agro" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=1;fontSize=10;fillColor=#FFFFFF;strokeColor=#82B366;" value="labores" vertex="1">
+          <mxGeometry height="160" width="240" x="20" y="240" as="geometry"/>
+        </mxCell>
+        <mxCell id="row-lab-0" parent="tbl-labores" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="25"/></mxCell>
+        <mxCell id="c-lab-0" parent="row-lab-0" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;fontStyle=1;" value="PK  id : UUID" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-lab-1" parent="tbl-labores" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="45"/></mxCell>
+        <mxCell id="c-lab-1" parent="row-lab-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="FK  lote_id : UUID -&gt; lotes.id" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-lab-2" parent="tbl-labores" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="65"/></mxCell>
+        <mxCell id="c-lab-2" parent="row-lab-2" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="tipo : VARCHAR(20)" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-lab-3" parent="tbl-labores" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="85"/></mxCell>
+        <mxCell id="c-lab-3" parent="row-lab-3" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="fecha_ejecucion : DATE" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-lab-4" parent="tbl-labores" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="105"/></mxCell>
+        <mxCell id="c-lab-4" parent="row-lab-4" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="costo_mano_obra, insumos, total" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-lab-5" parent="tbl-labores" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="125"/></mxCell>
+        <mxCell id="c-lab-5" parent="row-lab-5" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="anulada : BOOLEAN" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+
+        <mxCell id="tbl-fert" parent="ctx-agro" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=1;fontSize=10;fillColor=#FFFFFF;strokeColor=#82B366;" value="fertilizaciones" vertex="1">
+          <mxGeometry height="180" width="240" x="300" y="240" as="geometry"/>
+        </mxCell>
+        <mxCell id="row-ft-0" parent="tbl-fert" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="25"/></mxCell>
+        <mxCell id="c-ft-0" parent="row-ft-0" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;fontStyle=1;" value="PK  id : UUID" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-ft-1" parent="tbl-fert" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="45"/></mxCell>
+        <mxCell id="c-ft-1" parent="row-ft-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="FK  lote_id : UUID -&gt; lotes.id" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-ft-2" parent="tbl-fert" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="65"/></mxCell>
+        <mxCell id="c-ft-2" parent="row-ft-2" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="estado : VARCHAR(20)" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-ft-3" parent="tbl-fert" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="85"/></mxCell>
+        <mxCell id="c-ft-3" parent="row-ft-3" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="fecha : DATE, composicion : VARCHAR" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-ft-4" parent="tbl-fert" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="105"/></mxCell>
+        <mxCell id="c-ft-4" parent="row-ft-4" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="costo_insumos, mano_obra, total" vertex="1"><mxGeometry height="20" width="240" as="geometry" x="0" y="0"/></mxCell>
+
+        <!-- CONTEXTO COSECHA -->
+        <mxCell id="ctx-cosecha" parent="1" style="swimlane;startSize=25;fillColor=#FFE6CC;strokeColor=#D79B00;fontStyle=1;fontSize=12;" value="BD: agrocafe_cosecha (ms-cosecha)" vertex="1">
+          <mxGeometry height="360" width="270" x="890" y="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl-recol" parent="ctx-cosecha" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=1;fontSize=10;fillColor=#FFFFFF;strokeColor=#D79B00;" value="recolecciones" vertex="1">
+          <mxGeometry height="140" width="230" x="20" y="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="row-rc-0" parent="tbl-recol" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="25"/></mxCell>
+        <mxCell id="c-rc-0" parent="row-rc-0" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;fontStyle=1;" value="PK  id : UUID" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-rc-1" parent="tbl-recol" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="45"/></mxCell>
+        <mxCell id="c-rc-1" parent="row-rc-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="lote_id, finca_id, usuario_id (ref logicas)" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-rc-2" parent="tbl-recol" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="65"/></mxCell>
+        <mxCell id="c-rc-2" parent="row-rc-2" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="fecha : DATE, estado_grano : VARCHAR" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-rc-3" parent="tbl-recol" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="85"/></mxCell>
+        <mxCell id="c-rc-3" parent="row-rc-3" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="peso_cascara_kg, costo_mano_obra" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="0"/></mxCell>
+
+        <mxCell id="tbl-ventas" parent="ctx-cosecha" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=1;fontSize=10;fillColor=#FFFFFF;strokeColor=#D79B00;" value="ventas" vertex="1">
+          <mxGeometry height="140" width="230" x="20" y="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="row-v-0" parent="tbl-ventas" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="25"/></mxCell>
+        <mxCell id="c-v-0" parent="row-v-0" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;fontStyle=1;" value="PK  id : UUID" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-v-1" parent="tbl-ventas" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="45"/></mxCell>
+        <mxCell id="c-v-1" parent="row-v-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="lote_id, finca_id, usuario_id (ref logicas)" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-v-2" parent="tbl-ventas" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="65"/></mxCell>
+        <mxCell id="c-v-2" parent="row-v-2" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="fecha : DATE, comprador : VARCHAR" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-v-3" parent="tbl-ventas" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="85"/></mxCell>
+        <mxCell id="c-v-3" parent="row-v-3" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="cantidad, precio_arroba, monto_total" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="0"/></mxCell>
+
+        <!-- CONTEXTO FINANCIERO -->
+        <mxCell id="ctx-fin" parent="1" style="swimlane;startSize=25;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontStyle=1;fontSize=12;" value="BD: agrocafe_financiero (ms-financiero)" vertex="1">
+          <mxGeometry height="300" width="270" x="890" y="420" as="geometry"/>
+        </mxCell>
+        <mxCell id="tbl-bal" parent="ctx-fin" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=1;fontSize=10;fillColor=#FFFFFF;strokeColor=#6C8EBF;" value="balances_lote" vertex="1">
+          <mxGeometry height="140" width="230" x="20" y="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="row-b-0" parent="tbl-bal" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="25"/></mxCell>
+        <mxCell id="c-b-0" parent="row-b-0" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;fontStyle=1;" value="PK  lote_id : UUID (ref logica)" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-b-1" parent="tbl-bal" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="45"/></mxCell>
+        <mxCell id="c-b-1" parent="row-b-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="finca_id, usuario_id : UUID" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-b-2" parent="tbl-bal" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="65"/></mxCell>
+        <mxCell id="c-b-2" parent="row-b-2" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="costo_total, ingreso_total : NUMERIC" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-b-3" parent="tbl-bal" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="85"/></mxCell>
+        <mxCell id="c-b-3" parent="row-b-3" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="actualizado_en : TIMESTAMPTZ, version" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="0"/></mxCell>
+
+        <mxCell id="tbl-ev" parent="ctx-fin" style="shape=table;startSize=25;container=1;collapsible=0;childLayout=tableLayout;fixedRows=1;rowLines=1;fontSize=10;fillColor=#FFFFFF;strokeColor=#6C8EBF;" value="eventos_procesados" vertex="1">
+          <mxGeometry height="80" width="230" x="20" y="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="row-e-0" parent="tbl-ev" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="25"/></mxCell>
+        <mxCell id="c-e-0" parent="row-e-0" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;fontStyle=1;" value="PK  evento_id : UUID" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="0"/></mxCell>
+        <mxCell id="row-e-1" parent="tbl-ev" style="shape=tableRow;startSize=0;fillColor=none;strokeColor=inherit;" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="45"/></mxCell>
+        <mxCell id="c-e-1" parent="row-e-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;fontSize=9;" value="topico : VARCHAR(60), procesado_en" vertex="1"><mxGeometry height="20" width="230" as="geometry" x="0" y="0"/></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,79 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Página-1" id="51XFLkW6mdPINND787WA">
+    <mxGraphModel dx="2357" dy="1338" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="boehtNkWuzTpHt9hUsyM-22" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=12;fontStyle=1;" value="Cliente&lt;br&gt;(Web / App)" vertex="1">
+          <mxGeometry height="50" width="160" x="380" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="boehtNkWuzTpHt9hUsyM-23" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#8C5A3C;strokeColor=#5B3A29;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" value="Gateway GraphQL (BFF)&lt;br&gt;Spring Boot" vertex="1">
+          <mxGeometry height="60" width="220" x="350" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="boehtNkWuzTpHt9hUsyM-24" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F2E6DA;strokeColor=#5B3A29;fontSize=11;fontStyle=1;" value="ms-auth&lt;br&gt;Identidad y acceso&lt;br&gt;(JWT)" vertex="1">
+          <mxGeometry height="70" width="160" x="40" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="boehtNkWuzTpHt9hUsyM-25" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F2E6DA;strokeColor=#5B3A29;fontSize=11;fontStyle=1;" value="ms-agronomico&lt;br&gt;Fincas, lotes, labores,&lt;br&gt;fertilizaciones" vertex="1">
+          <mxGeometry height="70" width="160" x="260" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="boehtNkWuzTpHt9hUsyM-26" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F2E6DA;strokeColor=#5B3A29;fontSize=11;fontStyle=1;" value="ms-cosecha&lt;br&gt;Recolección,&lt;br&gt;trazabilidad y ventas" vertex="1">
+          <mxGeometry height="70" width="160" x="480" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="boehtNkWuzTpHt9hUsyM-27" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F2E6DA;strokeColor=#5B3A29;fontSize=11;fontStyle=1;" value="ms-financiero&lt;br&gt;Analítica y balance&lt;br&gt;consolidado (solo lectura)" vertex="1">
+          <mxGeometry height="70" width="180" x="700" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="boehtNkWuzTpHt9hUsyM-28" parent="1" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;fontStyle=1;" value="Apache Kafka&lt;br&gt;Tópicos: costo-registrado / costo-anulado /&lt;br&gt;ingreso-registrado / ingreso-anulado" vertex="1">
+          <mxGeometry height="80" width="620" x="180" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="db-auth" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;fontStyle=1;boundedLbl=1;" value="BD ms-auth&lt;br&gt;(agrocafe_auth)" vertex="1">
+          <mxGeometry height="70" width="160" x="40" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="db-agronomico" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;fontStyle=1;boundedLbl=1;" value="BD ms-agronomico&lt;br&gt;(agrocafe_agronomico)" vertex="1">
+          <mxGeometry height="70" width="160" x="260" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="db-cosecha" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;fontStyle=1;boundedLbl=1;" value="BD ms-cosecha&lt;br&gt;(agrocafe_cosecha)" vertex="1">
+          <mxGeometry height="70" width="160" x="480" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="db-financiero" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;fontStyle=1;boundedLbl=1;" value="BD ms-financiero&lt;br&gt;(agrocafe_financiero)" vertex="1">
+          <mxGeometry height="70" width="180" x="700" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="boehtNkWuzTpHt9hUsyM-30" edge="1" parent="1" source="boehtNkWuzTpHt9hUsyM-22" style="edgeStyle=orthogonalEdgeStyle;html=1;fontSize=10;strokeColor=#3B2415;" target="boehtNkWuzTpHt9hUsyM-23" value="GraphQL (query/mutation)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="boehtNkWuzTpHt9hUsyM-31" edge="1" parent="1" source="boehtNkWuzTpHt9hUsyM-23" style="edgeStyle=orthogonalEdgeStyle;html=1;fontSize=10;strokeColor=#3B2415;" target="boehtNkWuzTpHt9hUsyM-24" value="REST (login/me)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="boehtNkWuzTpHt9hUsyM-32" edge="1" parent="1" source="boehtNkWuzTpHt9hUsyM-23" style="edgeStyle=orthogonalEdgeStyle;html=1;fontSize=10;strokeColor=#3B2415;" target="boehtNkWuzTpHt9hUsyM-25" value="REST + Bearer JWT">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="boehtNkWuzTpHt9hUsyM-33" edge="1" parent="1" source="boehtNkWuzTpHt9hUsyM-23" style="edgeStyle=orthogonalEdgeStyle;html=1;fontSize=10;strokeColor=#3B2415;" target="boehtNkWuzTpHt9hUsyM-26" value="REST + Bearer JWT">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="boehtNkWuzTpHt9hUsyM-34" edge="1" parent="1" source="boehtNkWuzTpHt9hUsyM-23" style="edgeStyle=orthogonalEdgeStyle;html=1;fontSize=10;strokeColor=#3B2415;" target="boehtNkWuzTpHt9hUsyM-27" value="REST (consulta balance)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="boehtNkWuzTpHt9hUsyM-35" edge="1" parent="1" source="boehtNkWuzTpHt9hUsyM-25" style="edgeStyle=orthogonalEdgeStyle;html=1;fontSize=10;strokeColor=#D79B00;" target="boehtNkWuzTpHt9hUsyM-28" value="publica costo-registrado / costo-anulado">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="boehtNkWuzTpHt9hUsyM-36" edge="1" parent="1" source="boehtNkWuzTpHt9hUsyM-26" style="edgeStyle=orthogonalEdgeStyle;html=1;fontSize=10;strokeColor=#D79B00;" target="boehtNkWuzTpHt9hUsyM-28" value="publica costo-reg. (recolección) e ingreso-reg./anulado (venta)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="boehtNkWuzTpHt9hUsyM-37" edge="1" parent="1" source="boehtNkWuzTpHt9hUsyM-28" style="edgeStyle=orthogonalEdgeStyle;html=1;fontSize=10;strokeColor=#D79B00;dashed=1;" target="boehtNkWuzTpHt9hUsyM-27" value="consume 4 tópicos (async)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="boehtNkWuzTpHt9hUsyM-38" edge="1" parent="1" source="boehtNkWuzTpHt9hUsyM-24" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6C8EBF;" target="db-auth">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="boehtNkWuzTpHt9hUsyM-39" edge="1" parent="1" source="boehtNkWuzTpHt9hUsyM-25" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6C8EBF;" target="db-agronomico">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="boehtNkWuzTpHt9hUsyM-40" edge="1" parent="1" source="boehtNkWuzTpHt9hUsyM-26" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6C8EBF;" target="db-cosecha">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="boehtNkWuzTpHt9hUsyM-41" edge="1" parent="1" source="boehtNkWuzTpHt9hUsyM-27" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#6C8EBF;" target="db-financiero">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
