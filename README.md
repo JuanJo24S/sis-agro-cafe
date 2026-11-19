@@ -1,4 +1,4 @@
-# AgroCafé (`sis-agro-cafe`)
+﻿# AgroCafé (`sis-agro-cafe`)
 
 Sistema distribuido orientado a eventos para la gestión agronómica, de cosecha y financiera de fincas cafeteras.
 
@@ -6,7 +6,7 @@ Proyecto de aula de **Programación Avanzada**, Ingeniería de Software, Fundaci
 
 - **Repositorio:** <https://github.com/JuanJo24S/sis-agro-cafe>
 - **Etiqueta de entrega:** `v1.0.0-entrega-final`
-- **Commit:** `<PENDIENTE_HASH>`
+- **Commit:** `\$hash1\ (\$hash1Full\)`
 - **Documentación adicional:** [Manual Técnico](docs/MANUAL_TECNICO.md) · [Matriz de Pruebas](docs/PRUEBAS.md) · [Diagramas](docs/diagramas/) · [Contratos OpenAPI y GraphQL](docs/openapi/)
 
 ---
