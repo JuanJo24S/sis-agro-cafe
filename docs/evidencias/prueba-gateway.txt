@@ -1,0 +1,62 @@
+﻿
+▸ 1. Esquema publicado: 8 queries y 13 mutations
+  ✓ El gateway expone 8 queries
+  ✓ El gateway expone 13 mutations
+
+▸ 2. Identidad (ms-auth): registro, login y me
+  ✓ registro devuelve el usuario CAFICULTOR
+  ✓ login devuelve un JWT con expiracion
+  ✓ login con clave incorrecta devuelve error
+  ✓ me devuelve el usuario autenticado
+  ✓ me sin token se clasifica como UNAUTHORIZED
+
+▸ 3. Gestion agronomica (ms-agronomico): finca y lotes
+  ✓ crearFinca devuelve id y nombre
+  ✓ crearLote devuelve el lote Castillo
+  ✓ segundo lote creado (sin movimientos, para probar el batch)
+
+▸ 4. Labores: registro, idempotencia y anulacion
+  ✓ registrarLabor calcula costoTotal = 225000
+  ✓ la misma Idempotency-Key no duplica la labor
+  ✓ anularLabor devuelve true
+
+▸ 5. Fertilizacion: programar y ejecutar
+  ✓ la fertilizacion nace PROGRAMADA
+  ✓ ejecutarFertilizacion pasa a EJECUTADA con costoTotal = 1490000
+
+▸ 6. Cosecha (ms-cosecha): recoleccion y maquina de estados del grano
+  ✓ registrarRecoleccion devuelve estado del grano y costo
+  ✓ el grano avanza a SECO_TRILLA
+  ✓ la maquina de estados rechaza retroceder a CEREZA
+
+▸ 7. Ventas: registro y anulacion (publican eventos a Kafka)
+  ✓ registrarVenta calcula montoTotal = 11875000
+  ✓ anularVenta devuelve true
+
+▸ 8. Balance consolidado por Kafka (ms-financiero), espera hasta 40 s
+  ✓ ingreso consolidado = 11875000 (la venta anulada se compensa)
+  ✓ costos consolidados > 0
+  ✓ balance = ingresos - costos
+  ✓ balanceFinca agrega los movimientos de la finca
+
+▸ 9. Consulta unificada: una peticion que agrega los 4 microservicios
+  ✓ lote.labores incluye la labor registrada
+  ✓ lote.fertilizaciones trae 1 EJECUTADA
+  ✓ lote.recolecciones trae 1 recoleccion
+  ✓ lote.ventas incluye la venta a la cooperativa
+  ✓ lote.balance resuelto contra ms-financiero
+  ✓ finca.lotes trae los 2 lotes
+  ✓ finca.balance resuelto contra ms-financiero
+  ✓ el filtro estado: EJECUTADA devuelve la fertilizacion
+
+▸ 10. Queries restantes: fincas, lotes (batch) y ventas paginadas
+  ✓ fincas devuelve pagina con la finca creada
+  ✓ lotes(ids) resuelve los 2 lotes en una sola llamada
+  ✓ el lote sin movimientos tiene balance null (no rompe el batch)
+  ✓ ventas(loteId) devuelve la pagina de ventas
+
+▸ 11. Errores: clasificacion y aislamiento entre usuarios
+  ✓ lote inexistente se clasifica como NOT_FOUND
+  ✓ otro caficultor no puede ver la finca ajena (FORBIDDEN o NOT_FOUND)
+
+✓ Gateway verificado: 38 comprobaciones pasaron

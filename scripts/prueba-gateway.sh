@@ -57,17 +57,25 @@ afirmar() {
 
 SUFIJO=$(date +%s)
 # El Idempotency-Key debe ser un UUID
-uuid() { cat /proc/sys/kernel/random/uuid; }
+uuid() {
+  if [ -r /proc/sys/kernel/random/uuid ]; then
+    cat /proc/sys/kernel/random/uuid
+  elif command -v uuidgen >/dev/null 2>&1; then
+    uuidgen | tr 'A-Z' 'a-z'
+  else
+    powershell.exe -NoProfile -Command "[guid]::NewGuid().ToString()" | tr -d '\r'
+  fi
+}
 
 # ----------------------------------------------------------------------------
-paso "1. Esquema publicado: 8 queries y 12 mutations"
+paso "1. Esquema publicado: 8 queries y 13 mutations"
 # Dos peticiones separadas: graphql-java rechaza mas de un __Type.fields por query
 gql '{ __schema { queryType { fields { name } } } }'
 sin_errores "Introspeccion (queries)"
 afirmar "El gateway expone 8 queries" '.data.__schema.queryType.fields | length == 8'
 gql '{ __schema { mutationType { fields { name } } } }'
 sin_errores "Introspeccion (mutations)"
-afirmar "El gateway expone 12 mutations" '.data.__schema.mutationType.fields | length == 12'
+afirmar "El gateway expone 13 mutations" '.data.__schema.mutationType.fields | length == 13'
 
 # ----------------------------------------------------------------------------
 paso "2. Identidad (ms-auth): registro, login y me"

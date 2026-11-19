@@ -1,11 +1,12 @@
 package com.sisagrodev.gateway.config;
 
+import java.net.http.HttpClient;
 import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
 /** Un RestClient por microservicio de negocio con timeouts explicitos. */
@@ -16,8 +17,10 @@ public class ClientesConfig {
 	public ClientHttpRequestFactory clientHttpRequestFactory(
 			@Value("${agrocafe.clientes.timeout.conexion:3s}") Duration connectTimeout,
 			@Value("${agrocafe.clientes.timeout.lectura:10s}") Duration readTimeout) {
-		SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-		factory.setConnectTimeout(connectTimeout);
+		HttpClient httpClient = HttpClient.newBuilder()
+				.connectTimeout(connectTimeout)
+				.build();
+		JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(httpClient);
 		factory.setReadTimeout(readTimeout);
 		return factory;
 	}

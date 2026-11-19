@@ -1,0 +1,75 @@
+﻿
+▸ 1. Registro de usuario (humo-1795061739@finca.co)
+{"id":"150ff824-fedf-4cd9-a5a8-44b6b9b9fa58","email":"humo-1795061739@finca.co","rol":"CAFICULTOR"}
+
+▸ 2. Login (RF01)
+JWT obtenido (304 caracteres)
+
+▸ 3. Finca y lote (RF02)
+finca=182f0e95-d800-433e-963e-894f813927ed  lote=fa905229-2454-45b5-abef-9cb97470e2e9
+
+▸ 4. Labor cultural -> publica CostoRegistrado (RF03)
+{"tipo":"LIMPIA","costoTotal":225000}
+
+▸ 5. Fertilizacion programada y su ejecucion (RF04)
+{"estado":"EJECUTADA","costoTotal":1490000}
+
+▸ 6. Recoleccion y avance del estado del grano (RF05)
+{"estadoGrano":"SECO_TRILLA","costoManoObra":800000.00}
+
+▸ 7. Venta -> publica IngresoRegistrado (RF06)
+{"comprador":"Cooperativa del Huila","montoTotal":11875000.0}
+
+▸ 8. Balance consolidado por Kafka (RF07, RNF01)
+{
+  "loteId": "fa905229-2454-45b5-abef-9cb97470e2e9",
+  "fincaId": "182f0e95-d800-433e-963e-894f813927ed",
+  "costoTotal": 2515000.00,
+  "ingresoTotal": 11875000.00,
+  "balance": 9360000.00,
+  "actualizadoEn": "2026-11-19T04:15:41.274424Z"
+}
+Balance de la finca:
+{
+  "loteId": null,
+  "fincaId": "182f0e95-d800-433e-963e-894f813927ed",
+  "costoTotal": 2515000.00,
+  "ingresoTotal": 11875000.00,
+  "balance": 9360000.00,
+  "actualizadoEn": "2026-11-19T04:15:41.274424Z"
+}
+
+▸ 9. Consulta unificada por el Gateway GraphQL (RNF03)
+{
+  "data": {
+    "lote": {
+      "nombre": "Lote 3 - La Cuchilla",
+      "variedad": "Castillo",
+      "labores": [
+        {
+          "tipo": "LIMPIA",
+          "costoTotal": 225000.0
+        }
+      ],
+      "fertilizaciones": [
+        {
+          "estado": "EJECUTADA",
+          "costoTotal": 1490000.0
+        }
+      ],
+      "ventas": [
+        {
+          "comprador": "Cooperativa del Huila",
+          "montoTotal": 1.1875E+7
+        }
+      ],
+      "balance": {
+        "costoTotal": 2515000.0,
+        "ingresoTotal": 1.1875E+7,
+        "balance": 9360000.0
+      }
+    }
+  }
+}
+
+✓ Flujo completo verificado

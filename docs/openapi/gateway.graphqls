@@ -56,7 +56,7 @@ type Finca {
   areaTotalHectareas: Float
   fechaCreacion: String
   "Lotes de la finca (resuelto contra ms-agronomico)."
-  lotes(page: Int = 0, size: Int = 50): [Lote!]!
+  lotes(page: Int = 0, size: Int = 20): [Lote!]!
   "Balance consolidado de la finca (resuelto contra ms-financiero). Null si aun no hay movimientos."
   balance: Balance
 }
@@ -74,17 +74,17 @@ type Lote {
   tipoSuelo: String
   temperaturaPromedio: Float
   "Bitacora de labores del lote."
-  labores(page: Int = 0, size: Int = 50): [Labor!]!
+  labores(page: Int = 0, size: Int = 20): [Labor!]!
   "Historial y plan de abonadas del lote."
   fertilizaciones(
     estado: EstadoFertilizacion
     page: Int = 0
-    size: Int = 50
+    size: Int = 20
   ): [Fertilizacion!]!
   "Jornadas de recoleccion del lote."
-  recolecciones(page: Int = 0, size: Int = 50): [Recoleccion!]!
+  recolecciones(page: Int = 0, size: Int = 20): [Recoleccion!]!
   "Ventas originadas en el lote."
-  ventas(page: Int = 0, size: Int = 50): [Venta!]!
+  ventas(page: Int = 0, size: Int = 20): [Venta!]!
   "Balance del lote. Null si aun no hay movimientos consolidados."
   balance: Balance
 }
